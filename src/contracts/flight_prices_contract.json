@@ -1,0 +1,48 @@
+{
+  "required_columns": [
+    "Airline",
+    "Source",
+    "Source Name",
+    "Destination",
+    "Destination Name",
+    "Departure Date & Time",
+    "Arrival Date & Time",
+    "Duration (hrs)",
+    "Stopovers",
+    "Aircraft Type",
+    "Class",
+    "Booking Source",
+    "Base Fare (BDT)",
+    "Tax & Surcharge (BDT)",
+    "Total Fare (BDT)",
+    "Seasonality",
+    "Days Before Departure"
+  ],
+  "numeric_columns": [
+    "Duration (hrs)",
+    "Stopovers",
+    "Base Fare (BDT)",
+    "Tax & Surcharge (BDT)",
+    "Total Fare (BDT)",
+    "Days Before Departure"
+  ],
+  "non_empty_string_columns": [
+    "Airline",
+    "Source",
+    "Destination",
+    "Departure Date & Time",
+    "Arrival Date & Time"
+  ],
+  "rules": {
+    "no_negative_values": [
+      "Duration (hrs)",
+      "Stopovers",
+      "Base Fare (BDT)",
+      "Tax & Surcharge (BDT)",
+      "Total Fare (BDT)",
+      "Days Before Departure"
+    ],
+    "compute_total_fare_if_missing": true,
+    "total_fare_tolerance_bdt": 1.0
+  }
+}
