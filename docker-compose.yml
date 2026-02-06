@@ -60,12 +60,6 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      _PIP_ADDITIONAL_REQUIREMENTS: >-
-        apache-airflow-providers-mysql==5.6.1
-        apache-airflow-providers-postgres==5.14.0
-        pandas==2.2.2
-        psycopg2-binary==2.9.9
-        mysql-connector-python==9.1.0
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
@@ -76,8 +70,8 @@ services:
       - |
         airflow db migrate
         airflow users create \
-          --username admin \
-          --password admin \
+          --username flight \
+          --password flight \
           --firstname Admin \
           --lastname User \
           --role Admin \
@@ -98,12 +92,6 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      _PIP_ADDITIONAL_REQUIREMENTS: >-
-        apache-airflow-providers-mysql==5.6.1
-        apache-airflow-providers-postgres==5.14.0
-        pandas==2.2.2
-        psycopg2-binary==2.9.9
-        mysql-connector-python==9.1.0
     ports:
       - "8080:8080"
     volumes:
@@ -128,12 +116,6 @@ services:
       AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      _PIP_ADDITIONAL_REQUIREMENTS: >-
-        apache-airflow-providers-mysql==5.6.1
-        apache-airflow-providers-postgres==5.14.0
-        pandas==2.2.2
-        psycopg2-binary==2.9.9
-        mysql-connector-python==9.1.0
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
