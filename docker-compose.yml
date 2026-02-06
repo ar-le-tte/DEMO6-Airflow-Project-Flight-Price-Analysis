@@ -65,6 +65,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./src:/opt/airflow/src
       - ./data:/opt/airflow/data
+      - ./sql:/opt/airflow/sql
     entrypoint: ["/bin/bash", "-lc"]
     command:
       - |
@@ -99,6 +100,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./src:/opt/airflow/src
       - ./data:/opt/airflow/data
+      - ./sql:/opt/airflow/sql
     command: ["webserver"]
     restart: unless-stopped
 
@@ -121,6 +123,7 @@ services:
       - ./logs:/opt/airflow/logs
       - ./src:/opt/airflow/src
       - ./data:/opt/airflow/data
+      - ./sql:/opt/airflow/sql
     command: ["scheduler"]
     restart: unless-stopped
 
