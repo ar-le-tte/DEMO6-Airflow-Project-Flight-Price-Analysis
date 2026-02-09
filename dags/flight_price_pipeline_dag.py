@@ -5,6 +5,7 @@ from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from src.ingest_to_mysql import ingest_csv_to_mysql
+from src.validate_from_mysql import validate_staging_table
 
 
 DEFAULT_ARGS = {
@@ -46,16 +47,41 @@ with DAG(
             ),
         )
     ingest_to_mysql = PythonOperator(
-    task_id="ingest_to_mysql",
-    python_callable=ingest_csv_to_mysql,
-    op_kwargs={
-        "csv_path": "/opt/airflow/data/raw/Flight_Price_Dataset_of_Bangladesh.csv",
-        "mysql_conn_id": "mysql_staging",
-        "table": "stg_flight_prices",
-        "chunk_size": 5000,
-    },
-)
+        task_id="ingest_to_mysql",
+        python_callable=ingest_csv_to_mysql,
+        op_kwargs={
+            "csv_path": "/opt/airflow/data/raw/Flight_Price_Dataset_of_Bangladesh.csv",
+            "mysql_conn_id": "mysql_staging",
+            "table": "stg_flight_prices",
+            "chunk_size": 5000,
+        },
+    )
+    create_validation_tables = BashOperator(
+        task_id="create_validation_tables",
+        bash_command=(
+            "mysql "
+            "-h mysql "
+            "-u root "
+            "-proot "
+            "< /opt/airflow/sql/mysql_validation_tables_ddl.sql"
+        ),
+    )
+    validate_from_mysql = PythonOperator(
+        task_id="validate_from_mysql",
+        python_callable=validate_staging_table,
+        op_kwargs={
+            "mysql_conn_id": "mysql_staging",
+            "source_table": "stg_flight_prices",
+            "good_table": "stg_flight_prices_valid",
+            "bad_table": "stg_flight_prices_invalid",
+            "metrics_out": "/opt/airflow/data/tmp/validation_metrics.json",
+            "total_fare_check": True,
+            "total_fare_tolerance": 1.0,
+        },
+    )
 
-    validate_csv >> create_mysql_staging_table >> ingest_to_mysql
+    validate_csv >> create_mysql_staging_table >> ingest_to_mysql >> create_validation_tables >> validate_from_mysql
+
+
 
 
