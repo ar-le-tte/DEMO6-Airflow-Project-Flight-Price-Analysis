@@ -21,7 +21,7 @@ def ingest_csv_to_mysql(
     # 1) Read
     df = pd.read_csv(csv_path)
 
-    # 2) Rename to clean column names (match your MySQL staging DDL)
+    # 2) Rename to clean column names to match our staging table 
     df = df.rename(columns={
         "Airline": "airline",
         "Source": "source_code",
@@ -42,7 +42,7 @@ def ingest_csv_to_mysql(
         "Days Before Departure": "days_before_departure",
     })
 
-    # 3) Parse datetimes (match your validator’s output format; errors -> NaT)
+    # 3) Parse datetimes
     for col in ["departure_dt", "arrival_dt"]:
         df[col] = pd.to_datetime(df[col], errors="coerce")
 
@@ -57,15 +57,14 @@ def ingest_csv_to_mysql(
         )
         df[col] = pd.to_numeric(df[col], errors="coerce")
 
-    # 5) days_before_departure as int (keep nulls as 0 for now)
+    # 5) days_before_departure as int 
     df["days_before_departure"] = pd.to_numeric(df["days_before_departure"], errors="coerce").fillna(0).astype(int)
 
-    # 6) Ensure stopovers is int/nullable if present (if it's text, leave it as-is and MySQL may reject)
-    # If your validator already converted it to numbers, this will work:
+    # 6) Ensure stopovers is int/nullable if present
     if "stopovers" in df.columns:
         df["stopovers"] = pd.to_numeric(df["stopovers"], errors="coerce")
 
-    # Columns to load (must match MySQL DDL)
+    # Columns to load 
     load_cols = [
         "airline", "source_code", "source_name",
         "destination_code", "destination_name",
