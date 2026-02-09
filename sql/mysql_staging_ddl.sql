@@ -22,7 +22,7 @@ CREATE TABLE stg_flight_prices (
   seasonality            VARCHAR(100)  NULL,
   days_before_departure  INT           NULL,
 
-  -- DE helper columns
+  -- helper column
   ingested_at_utc        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
   INDEX idx_route (source_code, destination_code),
