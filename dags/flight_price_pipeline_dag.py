@@ -3,6 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+from src.ingest_to_mysql import ingest_csv_to_mysql
 
 
 DEFAULT_ARGS = {
@@ -25,7 +27,7 @@ with DAG(
         task_id="validate_csv",
         bash_command=(
             "mkdir -p /opt/airflow/data/tmp /opt/airflow/data/bad_records && "
-            "python /opt/airflow/src/validate_flights.py "
+            "python /opt/airflow/src/raw_flights_validation.py "
             "--input /opt/airflow/data/raw/Flight_Price_Dataset_of_Bangladesh.csv "
             "--contract /opt/airflow/src/contracts/flight_prices_contract.json "
             "--good_out /opt/airflow/data/tmp/validated_flights.csv "
@@ -43,6 +45,17 @@ with DAG(
                 "< /opt/airflow/sql/mysql_staging_ddl.sql"
             ),
         )
+    ingest_to_mysql = PythonOperator(
+    task_id="ingest_to_mysql",
+    python_callable=ingest_csv_to_mysql,
+    op_kwargs={
+        "csv_path": "/opt/airflow/data/raw/Flight_Price_Dataset_of_Bangladesh.csv",
+        "mysql_conn_id": "mysql_staging",
+        "table": "stg_flight_prices",
+        "chunk_size": 5000,
+    },
+)
 
-    validate_csv >> create_mysql_staging_table
+    validate_csv >> create_mysql_staging_table >> ingest_to_mysql
+
 
