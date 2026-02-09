@@ -33,3 +33,16 @@ with DAG(
             "--metrics_out /opt/airflow/data/tmp/metrics.json"
         ),
     )
+    create_mysql_staging_table = BashOperator(
+        task_id="create_mysql_staging_table",
+            bash_command=(
+                "mysql "
+                "-h mysql "
+                "-u root "
+                "-proot "
+                "< /opt/airflow/sql/mysql_staging_ddl.sql"
+            ),
+        )
+
+    validate_csv >> create_mysql_staging_table
+
