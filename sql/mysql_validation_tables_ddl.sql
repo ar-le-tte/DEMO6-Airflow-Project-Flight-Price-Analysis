@@ -2,7 +2,7 @@ USE flightdb;
 -- Table for VALID records
 DROP TABLE IF EXISTS stg_flight_prices_valid;
 CREATE TABLE stg_flight_prices_valid (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     airline VARCHAR(100),
     source_code VARCHAR(10),
     source_name VARCHAR(255),
@@ -26,12 +26,12 @@ CREATE TABLE stg_flight_prices_valid (
     computed_total_fare_bdt DECIMAL(12,2) NULL,
     fare_diff_bdt DECIMAL(12,2) NULL,
     fare_mismatch_flag TINYINT(1) NOT NULL DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
 
 -- Table for INVALID records (same schema + reasons column)
 DROP TABLE IF EXISTS stg_flight_prices_invalid;
 CREATE TABLE stg_flight_prices_invalid (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT PRIMARY KEY,
     airline VARCHAR(100),
     source_code VARCHAR(10),
     source_name VARCHAR(255),
@@ -55,4 +55,4 @@ CREATE TABLE stg_flight_prices_invalid (
     fare_mismatch_flag TINYINT(1) NOT NULL DEFAULT 0,
     -- Column to store validation failure reasons
     __reasons TEXT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);

@@ -4,6 +4,7 @@ USE flightdb;
 DROP TABLE IF EXISTS stg_flight_prices;
 
 CREATE TABLE stg_flight_prices (
+  id INT AUTO_INCREMENT PRIMARY KEY,
   airline                VARCHAR(100)  NOT NULL,
   source_code            VARCHAR(20)   NOT NULL,
   source_name            VARCHAR(255)  NULL,
