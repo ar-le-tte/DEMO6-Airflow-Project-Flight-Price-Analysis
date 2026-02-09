@@ -1,7 +1,7 @@
 USE flightdb;
 -- Table for VALID records
 DROP TABLE IF EXISTS stg_flight_prices_valid;
-CREATE TABLE IF NOT EXISTS stg_flight_prices_valid (
+CREATE TABLE stg_flight_prices_valid (
     id INT AUTO_INCREMENT PRIMARY KEY,
     airline VARCHAR(100),
     source_code VARCHAR(10),
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS stg_flight_prices_valid (
 
 -- Table for INVALID records (same schema + reasons column)
 DROP TABLE IF EXISTS stg_flight_prices_invalid;
-CREATE TABLE IF NOT EXISTS stg_flight_prices_invalid (
+CREATE TABLE stg_flight_prices_invalid (
     id INT AUTO_INCREMENT PRIMARY KEY,
     airline VARCHAR(100),
     source_code VARCHAR(10),
