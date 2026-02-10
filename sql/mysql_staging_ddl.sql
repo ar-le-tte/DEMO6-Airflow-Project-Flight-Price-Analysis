@@ -13,7 +13,7 @@ CREATE TABLE stg_flight_prices (
   departure_dt           DATETIME      NOT NULL,
   arrival_dt             DATETIME      NOT NULL,
   duration_hrs           DOUBLE        NULL,
-  stopovers              INT           NULL,
+  stopovers              VARCHAR(50)   NULL,
   aircraft_type          VARCHAR(100)  NULL,
   travel_class           VARCHAR(50)   NULL,
   booking_source         VARCHAR(100)  NULL,

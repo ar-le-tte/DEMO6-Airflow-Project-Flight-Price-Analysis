@@ -25,7 +25,17 @@ def _add_reason(mask: pd.Series, reason: str, reasons: pd.Series) -> pd.Series:
     )
     return reasons
 
-
+def parse_stopovers(series: pd.Series) -> pd.Series:
+    """Convert stopover text to numbers"""
+    s = series.astype(str).str.strip()
+    s = s.replace({
+        "Direct": "0",
+        "Non-stop": "0", 
+        "Nonstop": "0",
+    })
+    # Extract numbers from "1 Stop", "2 Stopovers", etc.
+    s = s.str.extract(r'(\d+)', expand=False)
+    return pd.to_numeric(s, errors="coerce")
 def _get_table_columns(hook: MySqlHook, table: str) -> List[str]:
     rows = hook.get_records(
         """
@@ -105,7 +115,8 @@ def validate_staging_table(
 
     # ---- Extract
     df = hook.get_pandas_df(f"SELECT * FROM {source_table};")
-    # Add this before your validation rules:
+    if "stopovers" in df.columns:  ## To convert stopovers to numeric values
+        df["stopovers"] = parse_stopovers(df["stopovers"])
 
     if df.empty:
         metrics = {

@@ -60,9 +60,6 @@ def ingest_csv_to_mysql(
     # 5) days_before_departure as int 
     df["days_before_departure"] = pd.to_numeric(df["days_before_departure"], errors="coerce").fillna(0).astype(int)
 
-    # 6) Ensure stopovers is int/nullable if present
-    if "stopovers" in df.columns:
-        df["stopovers"] = pd.to_numeric(df["stopovers"], errors="coerce")
 
     # Columns to load 
     load_cols = [
@@ -82,10 +79,10 @@ def ingest_csv_to_mysql(
 
     hook = MySqlHook(mysql_conn_id=mysql_conn_id)
 
-    # 7) Truncating staging table
+    # 6) Truncating staging table
     hook.run(f"TRUNCATE TABLE {table};")
 
-    # 8) Insert in chunks
+    # 7) Insert in chunks
     placeholders = ",".join(["%s"] * len(load_cols))
     insert_sql = f"""
         INSERT INTO {table} ({",".join(load_cols)})
@@ -110,7 +107,7 @@ def ingest_csv_to_mysql(
             cur.executemany(insert_sql, rows[start:end])
             conn.commit()
 
-        # 9) Row-count reconciliation
+        # 8) Row-count reconciliation
         cur.execute(f"SELECT COUNT(*) FROM {table};")
         db_count = cur.fetchone()[0]
 
