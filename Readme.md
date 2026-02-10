@@ -47,6 +47,8 @@ PostgreSQL (Analytics)
 │
 ├── docs/                                 # Report & documentation 
 │
+├── tests/test_cases.md                                # Some test cases to verify our pipeline
+│
 ├── logs/                                 # Airflow logs (generated)
 │
 ├── docker-compose.yml
