@@ -1,12 +1,13 @@
 from __future__ import annotations
-
+import os
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from src.ingest_to_mysql import ingest_csv_to_mysql
 from src.validate_from_mysql import validate_staging_table
-
+from src.load_mysql_to_postgres import create_target_tables, copy_valid_and_invalid
+from src.create_kpis import create_kpis
 
 DEFAULT_ARGS = {
     "owner": "airflow",
@@ -79,8 +80,61 @@ with DAG(
             "total_fare_tolerance": 1.0,
         },
     )
+    pg_create_tables = PythonOperator(
+        task_id="pg_create_tables",
+        python_callable=create_target_tables,
+    )
 
-    validate_csv >> create_mysql_staging_table >> ingest_to_mysql >> create_validation_tables >> validate_from_mysql
+    mysql_to_pg = PythonOperator(
+        task_id="mysql_to_pg_valid_invalid",
+        python_callable=copy_valid_and_invalid,
+    )
+    create_kpis_tables = BashOperator(
+        task_id="create_kpi_tables",
+         bash_command=(
+            "psql "
+            "-h postgres "
+            "-U ${POSTGRES_USER} "
+            "-d ${POSTGRES_DB} "
+            "-f /opt/airflow/sql/postgres_kpi_ddl.sql"
+        ),
+        env={
+            "PGPASSWORD": os.getenv("POSTGRES_PASSWORD"),
+            "POSTGRES_USER": os.getenv("POSTGRES_USER"),
+            "POSTGRES_DB": os.getenv("POSTGRES_DB"),
+        },
+ 
+    )
+    populate_kpis = PythonOperator(
+        task_id="populate_kpis",
+        python_callable=create_kpis,
+    )
+
+    # Task grouping:
+
+    ingestion = (
+    validate_csv
+    >> create_mysql_staging_table
+    >> ingest_to_mysql
+)
+
+    validation = (
+        create_validation_tables
+        >> validate_from_mysql
+    )
+
+    warehouse_load = (
+        pg_create_tables
+        >> mysql_to_pg
+    )
+
+    kpis = (
+        create_kpis_tables
+        >> populate_kpis
+    )
+
+    ingestion >> validation >> warehouse_load >> kpis
+
 
 
 
