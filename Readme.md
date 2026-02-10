@@ -57,15 +57,56 @@ PostgreSQL (Analytics)
 └── README.md
 
 ```
-## Dataset
-This project uses the following data sourced from kaggle:
-[Flight Price Dataset of Bangladesh](https://www.kaggle.com/datasets/mahatiratusher/flight-price-dataset-of-bangladesh)
-
-The dataset is to go in the `data/` directory under `raw/` locally.
 
 ## Prerequisites
 - Docker Desktop (or Docker Engine + Docker Compose)
 - WSL2 (if on Windows)
 - Git
 
- 
+ ## Set Up Instructions
+
+ ### 1. Clone the Repo
+
+ ```bash
+ git clone https://github.com/ar-le-tte/DEMO6-Airflow-Project-Flight-Price-Analysis.git
+
+cd DEMO6-Airflow-Project-Flight-Price-Analysis
+
+ ```
+
+ ### 2. Create Required Directories
+
+ For the raw, and transformed data as well as airflow logs
+
+ ```bash
+ mkdir -p data/raw data/tmp data/bad_records logs dags sql src/contracts
+
+ ```
+
+ ### 3. Configure Environment Variables
+
+ Create a `.env` in the project root with all the necessary credentials and connection details for `Airflow`, `MySQL`, `PostgreSQL`
+
+ ### 4. Dataset
+This project uses the following data sourced from kaggle:
+[Flight Price Dataset of Bangladesh](https://www.kaggle.com/datasets/mahatiratusher/flight-price-dataset-of-bangladesh)
+
+The dataset is to go in the `data/` directory under `raw/` locally.
+
+### 5. Docker Services
+```bash
+# Start all services
+docker compose up -d
+
+# Verify all containers are running
+docker compose ps
+```
+### 6. Access Airflow UI
+Open your browser to: [Airflow UI](http://localhost:8080)
+
+**Login credentials:**
+
+- Username: `flight`
+- Password: `flight`
+
+**Trigger the `flight_price_pipeline` DAG** 
