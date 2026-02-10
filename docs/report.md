@@ -198,3 +198,127 @@ AVG(total_fare_bdt)
 - Group records by airline.
 - Compute the average of `total_fare_bdt`.
 - Store the result alongside the total booking count per airline.
+
+### 5.2 Seasonal Fare Analysis
+
+#### Purpose
+
+This analysis compares flight pricing behavior across different travel seasons in order to understand the impact of demand fluctuations on fares.
+
+#### Season Definition
+
+Flights are categorized into two broad seasonal groups:
+
+- **Peak Season**
+  - Eid periods
+  - Winter holiday travel
+
+- **Non-Peak Season**
+  - All remaining travel periods outside peak windows
+
+#### Computed Indicators
+
+For each season category, the following metrics are calculated:
+
+- Mean total fare
+- Total number of bookings
+
+This comparison highlights how seasonal demand influences pricing patterns in the Bangladeshi aviation market.
+
+### 5.3 Booking Volume by Airline
+
+#### Purpose
+
+This metric measures the total number of bookings associated with each airline.
+
+#### Rationale
+
+Booking volume provides essential context for fare-based KPIs. Airlines with high average fares but low booking counts may operate in niche markets, while high-volume airlines reflect broader consumer demand.
+
+
+### 5.4 Most Frequently Traveled Routes
+
+#### Purpose
+
+This analysis identifies the most popular source–destination combinations based on booking frequency.
+
+#### Insight
+
+By ranking routes according to demand, the pipeline highlights key travel corridors and recurring passenger flows, which can inform route planning and pricing strategies.
+
+---
+
+## 6. Challenges and Resolutions
+
+### 6.1 Handling NULL Values During Ingestion
+
+#### Challenge
+
+During ingestion, MySQL rejected certain rows due to incompatible handling of missing values originating from Pandas DataFrames.
+
+#### Resolution
+
+An explicit type conversion strategy was applied prior to insertion, ensuring proper translation of missing values into SQL-compatible NULLs:
+
+```python
+df = df.astype(object).where(pd.notnull(df), None)
+```
+### 6.2 Airflow Connection Failures
+
+#### Challenge
+
+- `conn_id` not found errors during `MySQL_ingestion`task execution.
+
+#### Resolution
+
+- Standardized environment variables via `.env`
+- Leveraged Airflow’s automatic connection loading:
+```nginx
+AIRFLOW_CONN_MYSQL_STAGING
+```
+### 6.3 Fare Consistency Handling
+
+**Challenge**
+
+A design decision was required on how to handle records where the reported total fare did not match the sum of base fare and tax/surcharge values.
+
+**Approach**
+
+Rather than automatically correcting these discrepancies, the pipeline prioritizes data integrity and traceability.
+
+**Outcome**
+
+- Inconsistent fare records are explicitly flagged.
+- Such records are routed to the invalid dataset.
+- Original values are preserved to allow downstream auditing and investigation.
+
+This approach avoids silent data modification and ensures full transparency of data quality issues.
+
+
+### 6.4 MySQL to PostgreSQL Transfer Performance
+
+**Challenge**
+
+Initial implementations using row-by-row inserts resulted in poor performance and unstable execution for large datasets.
+
+**Approach**
+
+The data transfer strategy was revised to use batched inserts via PostgreSQL’s `execute_values` mechanism.
+
+**Outcome**
+
+- Significantly improved ingestion speed.
+- Reduced transaction overhead.
+- Reliable and consistent data transfer with minimal latency.
+
+---
+## 7. Conclusion
+
+This project implements a production-oriented data engineering pipeline with the following key characteristics:
+
+- A clear separation between ingestion, validation, and analytics layers.
+- Deterministic orchestration using Apache Airflow.
+- Explicit and auditable handling of data quality issues.
+- Analytical computations performed exclusively on validated data.
+
+Overall, the pipeline emphasizes correctness, transparency, and reproducibility, making it suitable for both academic assessment and real-world data engineering scenarios.
