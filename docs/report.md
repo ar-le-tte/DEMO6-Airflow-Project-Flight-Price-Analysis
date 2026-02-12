@@ -124,7 +124,7 @@ Records that violate any of these rules are flagged and preserved in the invalid
 
 **Outcome**
 
-- The VALID table contains fewer records than the original 57,000-row dataset. it has 54478 rows, because the other 2522 did not pass the total fare mismatch rule" 
+- The VALID table contains fewer records than the original 57,000-row dataset. During ingestion 18 rows were found to be duplicates so the staging table has it has 56982 rows. Among them the valid are 56982 rows, because the other 2521 did not pass the total fare mismatch rule" 
 - All rejected records are retained in the INVALID table with clear, human-readable explanations for each validation failure.
 
 
@@ -310,6 +310,34 @@ The data transfer strategy was revised to use batched inserts via PostgreSQL’s
 - Significantly improved ingestion speed.
 - Reduced transaction overhead.
 - Reliable and consistent data transfer with minimal latency.
+### 6.5 Airflow Environment Instability and Dependency Management
+
+**Challenge**
+
+While running the pipeline inside Docker containers, the Airflow CLI and certain Python dependencies intermittently failed.  
+Installing additional packages using `_PIP_ADDITIONAL_REQUIREMENTS` during container startup led to unstable behavior — including:
+
+- `airflow` command not found errors
+- Inconsistent container states
+- Runtime dependency conflicts
+
+This approach caused the environment to behave unpredictably across restarts.
+
+**Approach**
+
+To ensure a stable and reproducible runtime environment, a dedicated `Dockerfile` was introduced.
+
+Instead of installing dependencies at runtime, the required Python packages were baked directly into a custom Airflow image during the Docker build process.
+
+**Outcome**
+
+- Eliminated dependency drift across container restarts
+- Stabilized the Airflow CLI and scheduler behavior
+- Improved reproducibility of the environment
+- Reduced startup failures
+
+This change aligned the project more closely with production-grade DevOps practices, where container images are immutable and fully defined at build time.
+
 
 ---
 ## 7. Conclusion
