@@ -60,7 +60,19 @@ def ingest_csv_to_mysql(
     # 5) days_before_departure as int 
     df["days_before_departure"] = pd.to_numeric(df["days_before_departure"], errors="coerce").fillna(0).astype(int)
 
-
+    # 6) DEDUPLICATION - on (source, destination, time)
+    rows_before = len(df)
+    df = df.drop_duplicates(
+        subset=["source_code", "destination_code", "departure_dt"],
+        keep="first"  
+    )
+    rows_after = len(df)
+    duplicates_removed = rows_before - rows_after
+    
+    if duplicates_removed > 0:
+        print(f"DEDUPLICATION: Removed {duplicates_removed} duplicate rows")
+        print(f"  Original rows: {rows_before}")
+        print(f"  Unique rows: {rows_after}")
     # Columns to load 
     load_cols = [
         "airline", "source_code", "source_name",
@@ -79,10 +91,10 @@ def ingest_csv_to_mysql(
 
     hook = MySqlHook(mysql_conn_id=mysql_conn_id)
 
-    # 6) Truncating staging table
+    # 7) Truncating staging table
     hook.run(f"TRUNCATE TABLE {table};")
 
-    # 7) Insert in chunks
+    # 8) Insert in chunks
     placeholders = ",".join(["%s"] * len(load_cols))
     insert_sql = f"""
         INSERT INTO {table} ({",".join(load_cols)})
@@ -107,7 +119,7 @@ def ingest_csv_to_mysql(
             cur.executemany(insert_sql, rows[start:end])
             conn.commit()
 
-        # 8) Row-count reconciliation
+        # 9) Row-count reconciliation
         cur.execute(f"SELECT COUNT(*) FROM {table};")
         db_count = cur.fetchone()[0]
 

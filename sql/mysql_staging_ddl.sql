@@ -1,9 +1,7 @@
 CREATE DATABASE IF NOT EXISTS flightdb;
 USE flightdb;
 
-DROP TABLE IF EXISTS stg_flight_prices;
-
-CREATE TABLE stg_flight_prices (
+CREATE TABLE IF NOT EXISTS stg_flight_prices (
   id INT AUTO_INCREMENT PRIMARY KEY,
   airline                VARCHAR(100)  NOT NULL,
   source_code            VARCHAR(20)   NOT NULL,
@@ -25,6 +23,9 @@ CREATE TABLE stg_flight_prices (
 
   -- helper column
   ingested_at_utc        TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  -- Unique constraint on duplicate check columns
+  UNIQUE KEY uk_flight_unique (source_code, destination_code, departure_dt),
 
   INDEX idx_route (source_code, destination_code),
   INDEX idx_airline (airline),
