@@ -7,12 +7,12 @@ from airflow.operators.python import PythonOperator
 from src.ingest_to_mysql import ingest_csv_to_mysql
 from src.validate_from_mysql import validate_staging_table
 from src.load_mysql_to_postgres import create_target_tables, copy_valid_and_invalid
-from src.create_kpis import create_kpis
+from src.create_kpis import (create_kpi_avg_fare, create_kpi_seasonal, create_kpi_booking_count, create_kpi_top_routes)
 
 DEFAULT_ARGS = {
     "owner": "airflow",
     "retries": 1,
-    "email": [os.getenv("ALERT_EMAIL")]
+    "email": [os.getenv("ALERT_EMAIL")],
     "email_on_failure": True,          
     "email_on_retry": False,          
 }
@@ -108,9 +108,24 @@ with DAG(
         },
  
     )
-    populate_kpis = PythonOperator(
-        task_id="populate_kpis",
-        python_callable=create_kpis,
+    calc_kpi_avg_fare = PythonOperator(
+        task_id="calc_kpi_avg_fare",
+        python_callable=create_kpi_avg_fare,
+    )
+    
+    calc_kpi_seasonal = PythonOperator(
+        task_id="calc_kpi_seasonal",
+        python_callable=create_kpi_seasonal,
+    )
+    
+    calc_kpi_booking_count = PythonOperator(
+        task_id="calc_kpi_booking_count",
+        python_callable=create_kpi_booking_count,
+    )
+    
+    calc_kpi_top_routes = PythonOperator(
+        task_id="calc_kpi_top_routes",
+        python_callable=create_kpi_top_routes,
     )
 
     # Task grouping:
@@ -133,7 +148,7 @@ with DAG(
 
     kpis = (
         create_kpis_tables
-        >> populate_kpis
+        >> [calc_kpi_avg_fare, calc_kpi_seasonal, calc_kpi_booking_count, calc_kpi_top_routes]
     )
 
     ingestion >> validation >> warehouse_load >> kpis
