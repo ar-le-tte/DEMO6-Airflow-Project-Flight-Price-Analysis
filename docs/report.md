@@ -124,7 +124,7 @@ Records that violate any of these rules are flagged and preserved in the invalid
 
 **Outcome**
 
-- The VALID table contains fewer records than the original 57,000-row dataset. During ingestion 18 rows were found to be duplicates so the staging table has it has 56982 rows. Among them the valid are 56982 rows, because the other 2521 did not pass the total fare mismatch rule" 
+- The VALID table contains fewer records than the original 57,000-row dataset. During ingestion 18 rows were found to be duplicates so the staging table has it has 56982 rows. Among them the valid are 54461 rows, because the other 2521 did not pass the total fare mismatch rule" 
 - All rejected records are retained in the INVALID table with clear, human-readable explanations for each validation failure.
 
 
