@@ -12,6 +12,9 @@ from src.create_kpis import create_kpis
 DEFAULT_ARGS = {
     "owner": "airflow",
     "retries": 1,
+    "email": [os.getenv("ALERT_EMAIL")]
+    "email_on_failure": True,          
+    "email_on_retry": False,          
 }
 
 
