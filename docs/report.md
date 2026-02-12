@@ -48,7 +48,7 @@ validate_csv
 → pg_create_tables
 → mysql_to_pg
 → create_kpis_tables
-→ populate_kpis
+→ kpis: running in parrallel
 ```
 
 Each task only executes once its upstream dependency has completed successfully.
@@ -175,9 +175,9 @@ Design considerations:
 
 ### 4.9 KPI Computation and Population
 
-**Task:** `populate_kpis`
+**Task:** `kpis`
 
-This task computes and populates all KPI tables using data exclusively from the `analytics.flight_prices_valid` table.
+This task is made up of 4 tasks that compute and populates individual KPI tables using data exclusively from the `analytics.flight_prices_valid` table.
 
 By restricting KPI computation to validated records only, the pipeline guarantees that analytical results are derived from high-quality, trusted data.
 
